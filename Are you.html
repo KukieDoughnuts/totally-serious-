@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Quick Question...</title>
+<style>
+  body {
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #111;
+    font-family: Arial, sans-serif;
+    overflow: hidden;
+  }
+
+  .box {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 0 20px rgba(0,0,0,0.4);
+    width: 300px;
+    position: relative;
+    transition: transform 0.1s;
+  }
+
+  h2 { margin-bottom: 20px; }
+
+  button {
+    padding: 10px 18px;
+    font-size: 16px;
+    margin: 10px;
+    cursor: pointer;
+    border-radius: 6px;
+    border: none;
+  }
+
+  #yes { background: #4CAF50; color: white; }
+  #no  { background: #f44336; color: white; position: absolute; }
+
+  #countdown {
+    font-size: 18px;
+    margin-top: 15px;
+  }
+
+  canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+  }
+</style>
+</head>
+<body>
+
+<div class="box" id="box">
+  <h2 id="question">Are you Dumb?</h2>
+  <button id="yes">Yes</button>
+  <button id="no">No</button>
+  <div id="countdown"></div>
+</div>
+
+<canvas id="confetti"></canvas>
+
+<audio id="beep" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg"></audio>
+
+<script>
+const noBtn = document.getElementById("no");
+const yesBtn = document.getElementById("yes");
+const question = document.getElementById("question");
+const countdown = document.getElementById("countdown");
+const box = document.getElementById("box");
+const beep = document.getElementById("beep");
+
+// Runaway NO button
+noBtn.addEventListener("mouseover", () => {
+  const maxX = box.clientWidth - noBtn.offsetWidth;
+  const maxY = box.clientHeight - noBtn.offsetHeight;
+  noBtn.style.left = Math.random() * maxX + "px";
+  noBtn.style.top  = Math.random() * maxY + "px";
+});
+
+noBtn.style.left = "180px";
+noBtn.style.top  = "90px";
+
+// YES clicked
+yesBtn.addEventListener("click", () => {
+  question.textContent = "I knew it 😂";
+  yesBtn.style.display = "none";
+  noBtn.style.display = "none";
+
+  let count = 3;
+  countdown.textContent = "This message will self destruct in " + count;
+
+  const timer = setInterval(() => {
+    box.style.transform = `translate(${Math.random()*6-3}px, ${Math.random()*6-3}px)`; // shake
+    beep.currentTime = 0;
+    beep.play();
+
+    count--;
+    if (count > 0) {
+      countdown.textContent = "This message will self destruct in " + count;
+    } else {
+      clearInterval(timer);
+      launchConfetti();
+      setTimeout(() => box.style.display = "none", 1200);
+    }
+  }, 1000);
+});
+
+// 🎉 Confetti
+const canvas = document.getElementById("confetti");
+const ctx = canvas.getContext("2d");
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let pieces = [];
+
+function launchConfetti() {
+  for (let i = 0; i < 150; i++) {
+    pieces.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height - canvas.height,
+      size: Math.random() * 6 + 4,
+      speed: Math.random() * 3 + 2,
+      angle: Math.random() * 360
+    });
+  }
+  animateConfetti();
+}
+
+function animateConfetti() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  pieces.forEach(p => {
+    p.y += p.speed;
+    ctx.fillStyle = `hsl(${Math.random()*360},100%,50%)`;
+    ctx.fillRect(p.x, p.y, p.size, p.size);
+  });
+  requestAnimationFrame(animateConfetti);
+}
+</script>
+
+</body>
+</html>
